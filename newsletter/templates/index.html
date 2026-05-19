@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANZ SaaS Intel — {{ edition_label }}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">⚡</span>
+        <span class="brand-name">ANZ SaaS Intel</span>
+      </div>
+      <p class="brand-tagline">Daily technology news briefing for ANZ salespeople</p>
+    </div>
+  </header>
+
+  <nav class="edition-nav">
+    <div class="edition-nav-inner">
+      <span class="edition-label">Edition: <strong>{{ edition_label }}</strong></span>
+      {% if available_dates %}
+      <div class="edition-picker">
+        <label for="edition-select">Past editions:</label>
+        <select id="edition-select" onchange="window.location.href='/?edition=' + this.value">
+          {% for d in available_dates %}
+          <option value="{{ d.isoformat() }}" {% if d == selected_date %}selected{% endif %}>
+            {{ d.strftime("%-d %B %Y") }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main>
+    {% if articles %}
+    <div class="article-count">{{ articles | length }} article{{ 's' if articles | length != 1 }} today</div>
+
+    <div class="articles">
+      {% for article in articles %}
+      <article class="card">
+        <div class="card-header">
+          <div class="card-meta">
+            <span class="source-badge">{{ article.source }}</span>
+            {% for cat in article.saas_categories %}
+            <span class="category-badge">{{ cat }}</span>
+            {% endfor %}
+          </div>
+          <h2 class="card-title">
+            <a href="{{ article.original_url }}" target="_blank" rel="noopener noreferrer">
+              {{ article.title }}
+            </a>
+          </h2>
+          <p class="card-company">{{ article.company }}</p>
+        </div>
+
+        <div class="card-body">
+          <section class="card-section">
+            <h3>What happened</h3>
+            <p>{{ article.summary }}</p>
+          </section>
+
+          <section class="card-section opportunity">
+            <h3>Sales opportunity</h3>
+            <p>{{ article.sales_opportunity }}</p>
+          </section>
+
+          {% if article.talking_points %}
+          <section class="card-section talking-points">
+            <h3>Talking points</h3>
+            <ul>
+              {% for point in article.talking_points %}
+              <li>{{ point }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          {% endif %}
+        </div>
+
+        <div class="card-footer">
+          <a href="{{ article.original_url }}" target="_blank" rel="noopener noreferrer" class="read-more">
+            Read full article →
+          </a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📰</div>
+      <h2>No articles for {{ edition_label }}</h2>
+      <p>Check back later — today's edition is being prepared, or try refreshing manually.</p>
+      <form action="/refresh" method="post" class="refresh-form">
+        <button type="submit" class="btn-refresh">Refresh now</button>
+      </form>
+    </div>
+    {% endif %}
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>ANZ SaaS Intel — automated briefing powered by AI</p>
+      <p class="footer-note">News sourced from iTnews, CRN Australia, ARN, Computerworld AU &amp; ZDNet</p>
+    </div>
+  </footer>
+</body>
+</html>
