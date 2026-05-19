@@ -12,25 +12,36 @@ from fastapi.templating import Jinja2Templates
 
 load_dotenv()
 
-from database import get_articles_for_date, get_available_dates, init_db
+from database import get_articles_for_date, get_available_dates, init_db, save_articles
 from scraper import fetch_candidates, pick_top
-from ai_processor import process_articles
-from database import save_articles
+
+
+def _to_article(candidate: dict) -> dict:
+    return {
+        "title": candidate["title"],
+        "source": candidate["source"],
+        "original_url": candidate["url"],
+        "company": None,
+        "summary": candidate["summary"],
+        "sales_opportunity": None,
+        "saas_categories": None,
+        "talking_points": None,
+    }
 
 
 def run_daily_job():
-    """Fetch, process, and save today's edition."""
+    """Fetch and save today's edition."""
     today = date.today()
     print(f"[job] Running daily edition for {today}")
     try:
         candidates = fetch_candidates(max_per_feed=20)
-        top = pick_top(candidates, n=7)  # fetch 7, some may fail AI processing
-        enriched = process_articles(top)
-        if enriched:
-            save_articles(enriched[:5], today)
-            print(f"[job] Saved {len(enriched[:5])} articles for {today}")
+        top = pick_top(candidates, n=5)
+        articles = [_to_article(c) for c in top]
+        if articles:
+            save_articles(articles, today)
+            print(f"[job] Saved {len(articles)} articles for {today}")
         else:
-            print("[job] No articles processed — edition skipped")
+            print("[job] No articles found — edition skipped")
     except Exception as e:
         print(f"[job] Error during daily job: {e}")
 

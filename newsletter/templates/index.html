@@ -54,19 +54,21 @@
               {{ article.title }}
             </a>
           </h2>
-          <p class="card-company">{{ article.company }}</p>
+          {% if article.company %}<p class="card-company">{{ article.company }}</p>{% endif %}
         </div>
 
         <div class="card-body">
           <section class="card-section">
-            <h3>What happened</h3>
+            <h3>Summary</h3>
             <p>{{ article.summary }}</p>
           </section>
 
+          {% if article.sales_opportunity %}
           <section class="card-section opportunity">
             <h3>Sales opportunity</h3>
             <p>{{ article.sales_opportunity }}</p>
           </section>
+          {% endif %}
 
           {% if article.talking_points %}
           <section class="card-section talking-points">
